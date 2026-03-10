@@ -1,69 +1,97 @@
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-
 class Solution {
 
-    public int threeSumClosest(int[] nums, int target) {
-        int sum = Integer.MAX_VALUE;
-        Arrays.sort(nums);
-        for (int i = 0; i < nums.length - 2; i++) {
-            if (i > 0 && nums[i] == nums[i - 1]) continue;
-            int j = i + 1;
-            int k = nums.length - 1;
-            while (j < k) {
-                int curSum = nums[i] + nums[j] + nums[k];
-                if (Math.abs(curSum - target) < Math.abs(sum - target)) {
-                    sum = curSum;
-                } else if (curSum < target) {
-                    j++;
-                    while (j < k && nums[j] == nums[j - 1]) j++;
-                } else {
-                    k--;
-                    while (j < k && nums[k] == nums[k + 1]) k--;
-                }
-            }
-        }
-        return sum;
+
+    public ListNode sortList(ListNode head) {
+        return quickSort(head);
     }
 
-    public String minWindow(String s, String t) {
-        int left = 0, right = 0, match = 0, start = 0, end = s.length() - 1;
-        Map<Character, Integer> need = new HashMap<>();
-        Map<Character, Integer> window = new HashMap<>();
-        for (int i = 0; i < t.length(); i++) {
-            need.put(t.charAt(i), need.getOrDefault(t.charAt(i), 0) + 1);
-        }
-        while (right < s.length()) {
-            char c = s.charAt(right);
-            window.put(c, window.getOrDefault(c, 0) + 1);
-            if (need.containsKey(c) && window.get(c).equals(need.get(c))) {
-                match++;
+    private ListNode quickSort(ListNode head) {
+        if (head == null || head.next == null) return head;
+        // 把 < head.val 的所有元素存到链表 smallDummy 中，把 >= head.val 的所有元素存到链表 largeDummy 中
+        ListNode smallDummy = new ListNode(), p1 = smallDummy;
+        ListNode largeDummy = new ListNode(), p2 = largeDummy;
+        ListNode p = head.next;
+        while (p != null) {
+            ListNode nxt = p.next;
+            p.next = null;
+            if (p.val < head.val) {
+                p1.next = p;
+                p1 = p1.next;
+            } else {
+                p2.next = p;
+                p2 = p2.next;
             }
-            if (match == need.size()) {
-                if (end - start >= right - left) {
-                    start = left;
-                    end = right;
-                }
-                while (left < right) {
-                    char d = s.charAt(left);
-                    if (window.get(d).equals(need.get(d))) {
-                        match--;
-                    }
-                    window.put(d, window.get(d) - 1);
-                    left++;
-                }
-            }
-            right++;
+            p = nxt;
         }
-        return s.substring(start, end + 1);
+
+        p1.next = null;
+        head.next = null;
+        p2.next = null;    // 必须加，不然会导致链表成环，死循环
+
+        ListNode smallHead = quickSort(smallDummy.next);
+        ListNode largeHead = quickSort(largeDummy.next);
+
+        p1.next = head;
+        head.next = largeHead;
+
+        return smallHead;
     }
 
+    public ListNode mergeTwoLists(ListNode head1, ListNode head2) {
+        if (head1 == null) return head2;
+        if (head2 == null) return head1;
+        if (head1.val < head2.val) {
+            head1.next = mergeTwoLists(head1.next, head2);
+            return head1;
+        } else {
+            head2.next = mergeTwoLists(head1, head2.next);
+            return head2;
+        }
+    }
+
+    // p q
+    // 0 1 copyRandomList
+    public ListNode reverseList(ListNode head) {
+        ListNode pre = null;
+        ListNode cur = head;
+        while (cur != null) {
+            ListNode nxt = cur.next;
+            cur.next = pre;
+            pre = cur;
+            cur = nxt;
+        }
+        return pre;
+    }
 
     public static void main(String[] args) {
-        int[] nums = {3, 2, 20, 1, 1, 3};
-        System.out.println(new Solution().minWindow("ADOBECODEBANC", "ABC"));
+        ListNode node5 = new ListNode(5);
+        ListNode node4 = new ListNode(4, node5);
+        ListNode node3 = new ListNode(3, node4);
+        ListNode node2 = new ListNode(2, node3);
+        ListNode node1 = new ListNode(1, node2);
+        ListNode h = new Solution().removeNthFromEnd(node1, 2);
+        while (h != null) {
+            System.out.println(h.val);
+            h = h.next;
+        }
+//        System.out.println(h);
     }
 
+    static class ListNode {
+        int val;
+        ListNode next;
 
+        ListNode() {
+        }
+
+        ListNode(int val) {
+            this.val = val;
+        }
+
+        ListNode(int val, ListNode next) {
+            this.val = val;
+            this.next = next;
+        }
+    }
 }
+
