@@ -1,35 +1,19 @@
-import java.util.ArrayDeque;
-import java.util.Deque;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 class Solution {
 
-    public int fkl(int[] nums, int k) {
-        qs(nums, 0, nums.length - 1);
-    }
 
-    private void qs(int[] nums, int left, int right) {
-        if (right >= left) return;
-        int p = partition(nums, left, right);
-        qs(nums, left, p);
-        qs(nums, p + 1, right);
-    }
 
-    private int partition(int[] nums, int left, int right) {
-        int temp = nums[left];
-        int i = left, j = right;
-        while (i<j) {
-            while (i < j && nums[left] <= temp) i++;
-            while (i < j && nums[right] > temp) j--;
-
-        }
-
-    }
-
-    // 1432219
-    //dailyTemperatures
+    //findDuplicateSubtrees
     public static void main(String[] args) {
-        System.out.println(new Solution().removeKdigits("1432219", 3));
-
+        TreeNode treeNode2 = new TreeNode(2);
+        TreeNode treeNode1 = new TreeNode(1, treeNode2, null);
+        List<List<Integer>> lists = new Solution().pathSum(treeNode1, 1);
+        lists.forEach(System.out::println);
     }
 
 }
