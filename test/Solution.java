@@ -1,13 +1,21 @@
+import java.util.HashMap;
+import java.util.Map;
+
 class Solution {
 
+    public int rob(TreeNode root) {
+        if (root == null) return 0;
+
+
+        return Math.max()
+
+    }
 
 
     //findDuplicateSubtrees
     public static void main(String[] args) {
-        TreeNode treeNode2 = new TreeNode(2);
-        TreeNode treeNode1 = new TreeNode(1, treeNode2, null);
-//        List<List<Integer>> lists = new Solution().pathSum(treeNode1, 1);
-//        lists.forEach(System.out::println);
+        Solution solution = new Solution();
+        System.out.println(solution.rob(new int[]{2, 3, 2}));
     }
 
 }
