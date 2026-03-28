@@ -1199,7 +1199,7 @@ public void test() {
 >
 > 面试 (京东)：开发中使用过 WeakHashMap 吗？
 
-![](21.png)
+![](../images/二、Java/JVM/21.png)
 
 1. 强引用： 
     - 默认的引用类型；
@@ -1261,7 +1261,7 @@ public void test() {
 > - JDK9 及以后采用 G1；
 > - JDK14 删除了 CMS；
 
-![](22.png)
+![](../images/二、Java/JVM/22.png)
 
 #### 3.1.1、Parallel GC
 - -XX:GCTimeRatio 可以设置 GC 时间占比，<font style="color:#DF2A3F;">注重吞吐量</font>
@@ -1273,12 +1273,12 @@ public void test() {
     - Eden 区和 s 区大小默认是 8 : 1 : 1，但实际上是 6 : 1 : 1，这就是自适应调节后的结果。只有显式的设置 -XX:SurvivorRatio = 8 才会是 8 : 1 : 1，但这样会使自适应调节策略失效，因此建议不设置。
     - 在手动调优比较困难的场合，可以直接使用该策略，仅指定虚拟机的最大堆、目标的吞吐量 (GCTimeRatio) 和停顿时间(MaxGCPauseMills)，让虚拟机自己完成调优工作。
 
-![](23.png)
+![](../images/二、Java/JVM/23.png)
 
 #### 3.1.2、CMS GC
 > 第一款并发 GC，GC 线程和用户线程之间并发执行，注重响应时间
 
-![](24.png)
+![](../images/二、Java/JVM/24.png)
 
 > CMS 的 GC 过程：
 > 1. 初始标记 (STW)：仅标记与 GC Roots 直接关联的对象 (姑且称为一级子节点)；
@@ -1298,7 +1298,7 @@ public void test() {
 >
 > H 区：用于存储大对象（大小 > 0.5 个 Region）；如果对象太大，会使用多个连续的 H 区存储；
 
-![](25.png)
+![](../images/二、Java/JVM/25.png)
 
 - G1 的目标：可以设置 STW 最大时间，老年代只回收价值高的 Region，**<font style="color:#DF2A3F;">兼顾吞吐量和响应时间</font>**，JDK9 默认，用来取代 CMS！
 - G1：垃圾优先，会维护一个优先列表，优先回收价值最大的 Region（垃圾占比高）；G1 避免了一次性收集整个堆区，降低了延迟；
@@ -1370,7 +1370,7 @@ public void test() {
 >     - Marked0：表示本次 GC 标识过；
 > - 44bit：堆内存地址；
 
-![](26.png)
+![](../images/二、Java/JVM/26.png)
 
 2、读屏障
 > 与三色标记法中的写屏障类似，读屏障（JVM 层面的 AOP）会在读取对象地址前执行；
@@ -1378,7 +1378,7 @@ public void test() {
 3、内存地址多重映射
 > 创建对象时，依旧会在 OS 虚拟内存中分配空间，除此之外，通过染色指针维护了三个虚拟内存空间 Marked0、Marked1、Remapped，是 JVM 层面的虚拟内存；
 
-![](27.png)
+![](../images/二、Java/JVM/27.png)
 
 4、GC 过程（标记 + 转移）
 > - 初始标记 (STW)：标记 GC Roots 直接可达的对象；
@@ -1403,7 +1403,7 @@ public void test() {
 > - 响应时间优先的 GC 频率比吞吐量优先要高，这样每次 GC 的时间就短，响应时间就小；
 > - **<font style="color:red">JVM 调优标准：在吞吐量优先的情况下，降低停顿时间。</font>**
 
-![](28.png)
+![](../images/二、Java/JVM/28.png)
 
 ## 4、GC 日志分析
 | 参数 | 说明 |
@@ -1532,8 +1532,8 @@ public class TestController {
 4. 使用 https://blog.gceasy.io/ 分析 gc.log，过程比较慢，等着 
 5. 使用 `D:\jdk1.8\jdk1.8.0_101\bin\jvisualvm.exe` 分析 dump.hprof：文件 → 装入 → 选择 dump.hprof 文件 
 
-![](29.png)
-![](30.png)
+![](../images/二、Java/JVM/29.png)
+![](../images/二、Java/JVM/30.png)
 
 6. 注意：若 dump.hprof 文件已存在，再次生成则不会覆盖，还是原来的 dump 文件，但 gc.log 会覆盖。
 
