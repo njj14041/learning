@@ -1300,7 +1300,7 @@ public void test() {
 
 ![](../images/二、Java/JVM/25.png)
 
-- G1 的目标：可以设置 STW 最大时间，老年代只回收价值高的 Region，**<font style="color:#DF2A3F;">兼顾吞吐量和响应时间</font>**，JDK9 默认，用来取代 CMS！
+- G1 的目标：可以设置 STW 最大时间，老年代只回收价值高的 Region，**<font style="color:red;">兼顾吞吐量和响应时间</font>**，JDK9 默认，用来取代 CMS！
 - G1：垃圾优先，会维护一个优先列表，优先回收价值最大的 Region（垃圾占比高）；G1 避免了一次性收集整个堆区，降低了延迟；
 - 参数设置： 
     - 在 JDK8 用 -XX:UseG1GC 来启用；

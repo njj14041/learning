@@ -1434,14 +1434,12 @@ show variables like 'innodb_deadlock_detect';    -- 默认开启
 
 ### 5.2、MVCC 原理
 > 在 MySQL 中，每条记录都有 1 个隐藏字段 trx_id，表示最新修改这条记录的事务 id；
-
 ```sql
 -- 假设 id = 8 的事务向 user 表插入一条数据：
 insert into student values(1, '张三', '一班');
 -- 则会向 Undo Log 中插入一条：
 (1, '张三', '一班', 8)	 # trx_id = 8
 ```
-
 ```sql
 -- 事务 A (id = 10)：
 update student set name = '李四' where id = 1;
@@ -1467,7 +1465,7 @@ update student set name = '宋八' where id = 1;
 > - low_limit_id：创建 Read View 时，当前系统应该为下一个即将到来的事务分配的 id 值 (系统给事务分配 id 类似主键自增)。
 >
 > Read View 的规则：
-> <img src="17.png">
+> <img src="../images/三、MySQL/17.png">
 > - 若记录的 trx_id < up_limit_id，即：trx_id 在当前事务开启前已经提交，所以该版本能被当前事务访问； 
 > - 若记录的 trx_id >= low_limit_id，即：trx_id 在当前事务开启后才开启，不管有没有提交，该版本都不能被当前事务访问； 
 > - 若记录的 trx_id ∈ [up_limit_id, low_limit_id)，要先判断 trx_id 是否在 trx_ids 中： 
@@ -1492,19 +1490,16 @@ update student set name = '宋八' where id = 1;
 > - trx_ids：[20, 30]；
 > - up_limit_id：20；
 > - low_limit_id：31。
-
 ```sql
 -- 此时事务 A 能查到记录 (1, '张三')，为什么？
 -- 因为该记录的 trx_id = 10 < min(trx_ids) = 20，说明该条记录早已提交，当然能查出来
 select * from student where id >= 1;
 ```
-
 ```sql
 -- 此时事务 B 插入两条记录并提交，Undo Log 如下图
 insert into student(id,name) values(2,'李四');
 insert into student(id,name) values(3,'王五');
 ```
-
 <img src="../images/三、MySQL/19.png">
 
 > 此时事务 A 再次查询，结果还是 (1, '张三')，为什么？
@@ -1559,7 +1554,6 @@ SET GLOBAL general_log_file = 'path/filename';	-- 可以不写路径和文件名
 -- 临时关闭
 SET GLOBAL general_log = off;
 ```
-
 ```bash
 # 永久开启
 [mysqld]
@@ -1661,7 +1655,6 @@ insert into student values(21, 'aaa', 'No.1');
 insert into student values(22, 'aaa', 'No.1');
 delete from student where id >= 20;	# 误删，怎么恢复前面的三条数据？
 ```
-
 ```sql
 show binary logs;
 +---------------+-----------+
@@ -1673,13 +1666,11 @@ show binary logs;
 ```
 
 > 可以看到，前面 3 条 SQL 都保存在了最新的日志文件 mysqld.000002 中，我们要创建并使用新的日志文件 mysqld.000003，不然数据恢复时，写操作又记录在  mysqld.000002 中了...
-
 ```sql
 flush logs;	  -- 生成新的日志文件 mysqld.000003
 ```
 
 > 查看 binlog：
-
 ```sql
 show binlog events IN 'mysqld.000002';
 ```
@@ -1689,7 +1680,6 @@ show binlog events IN 'mysqld.000002';
 > 怎么定位开始结束 pos？前面的三条 insert 是连续执行的，所以 MySQL 生成的 xid 也是连续的，所以是 xid = 35、36、37 三条！
 >
 > 数据恢复命令：
-
 ```bash
 mysqlbinlog [option] filename | mysql –uuser -ppass;
 # option:
@@ -1712,13 +1702,11 @@ show binary logs;    -- 查询所有 binlog 文件
 ```
 
 > binlog 是二进制的，无法直接打开，可用以下命令，将 binlog 以伪 SQL 打印出来，并附带时间戳信息：
-
 ```sql
 mysqlbinlog -v --base64-output=DECODE-ROWS "binlog 路径"
 ```
 
 > 更为方便的查询命令，附带位置信息 pos，但没有时间戳信息：
-
 ```sql
 show binlog events [IN 'bin_log_name'] [FROM pos] [LIMIT [offset,] row_count];
 -- IN 'bin_log_name'：指定要查询哪个 binlog 文件，若不指定，则查询最早的第一个 binlog
@@ -1728,7 +1716,6 @@ show binlog events [IN 'bin_log_name'] [FROM pos] [LIMIT [offset,] row_count];
 ```
 
 **2、删除**
-
 ```bash
 show binary logs;
 +---------------+-----------+
@@ -1786,7 +1773,7 @@ mysql> RESET MASTER
 > - binlog 写成功，数据已经变了，事务还没提交 MySQL 挂了，redolog 还没来得及写，MySQL 重启后该事务无效，则 binlog 多数据！
 >
 > 两阶段提交：保证 redolog 和 binlog 的一致性！
->
+> 
 > - 4 发生 crash：binlog 还没写，redolog prepare 直接废弃即可，能保证两份日志一致；
 > - 6 发生 crash：redolog 还没提交，会检查 binlog 是否已经写入，如果写入就提交，否则连同 redolog prepare 直接废弃，能保证两份日志一致；
 
@@ -1812,7 +1799,6 @@ mysql> RESET MASTER
 > 主从复制典型的错误：
 >
 > slave 宕机，要重装系统时，发现数据恢复不了，原因：
->
 > 1. Relay Log 文件损坏；
 > 2. Relay Log 中记录了从服务器名，因此重装系统后，slave 要改成和以前一样的名！
 
@@ -1820,7 +1806,6 @@ mysql> RESET MASTER
 > 优化 MySQL 不要一上来就搭建集群，成本太高！
 >
 > 最佳实战：DB 一般都是读多写少，采用主备从架构，主库负责写和少部分实时读，从库负责其他读，备库不做操作（也是从库，压力小，主备切换快）；
->
 > 主从复制的作用：
 > - 读写分离；
 > - 数据备份；
